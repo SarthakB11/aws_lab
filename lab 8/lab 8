@@ -1,0 +1,2 @@
+This is lab 8 coursework.I made a web application with three microservices and hosted the microservices using Docker or AWS Elastic container.
+I used AWS API gateway to expose these services.

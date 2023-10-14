@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feedback Form</title>
+    <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Luckiest Guy', cursive;
+            background-image: url("/static/images/background.jpg");
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            flex-direction: row; /* Arrange the containers side by side */
+        }
+
+        .feedback-container {
+            background-color: #40e0d0;
+            padding: 10px;
+            border-radius: 10px;
+            text-align: center;
+            width: 50%; /* Make the feedback container occupy 50% of the screen width */
+            box-sizing: border-box; /* Include padding in the width */
+            margin-right: 10px; /* Add some right margin for spacing */
+        }
+
+        h1 {
+            font-size: 36px;
+            color: #000;
+        }
+
+        .rating {
+            font-size: 24px;
+            margin: 20px 0;
+        }
+
+        .rating input[type="radio"] {
+            display: none;
+        }
+
+        .rating label {
+            color: #fff1e6;
+            font-size: 30px;
+            cursor: pointer;
+        }
+
+        .rating label:hover,
+        .rating label:hover ~ label {
+            color: #000;
+        }
+
+        .rating input[type="radio"]:checked ~ label {
+            color: yellow;
+        }
+
+        .clear-button {
+            display:none;
+        }
+        .clear-button {
+            background-color: #e52b50;
+            color: #fff;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .categories {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .category-box {
+            background-color: #00bfff;
+            color: #fff;
+            padding: 10px 20px;
+            margin: 0 10px;
+            border-radius: 20px;
+            cursor: pointer;
+            transform: translate(0, 0);
+            transition: transform 0.2s, background-color 0.2s;
+        }
+
+        .category-box:hover {
+            background-color: #e52b50;
+            transform: translate(3px, 3px);
+        }
+
+        .category-box.clicked {
+            background-color: #e52b50;
+        }
+
+        .clear-button-category {
+            display:none;
+        }
+        .clear-button-category {
+            background-color: #e52b50;
+            color: #fff;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .submit-button {
+            background-color: #f4d160;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-family: 'Luckiest Guy', cursive;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .submit-button:hover {
+            background-color: #e52b50;
+        }
+
+        .image-container {
+            padding: 100px;
+            border-radius: 10px;
+            max-width: 50%; /* Make the image container occupy 50% of the screen width */
+            box-sizing: border-box; /* Include padding in the width */
+            margin-left: 10px; /* Add some left margin for spacing */
+        }
+        
+        .image-container img {
+            width: 100%;
+            height: auto;
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="image-container">
+        <img src="https://d17lo6jxbcqmjm.cloudfront.net" alt="Background Image">
+    </div>
+    <div class="feedback-container">
+        <form id="feedback-form" action="/submit_feedback" method="POST">
+        <h1>Feedback Form</h1>
+        <p>What is your opinion of this page?</p>
+        <div class="rating">
+            <input type="radio" id="star1" name="rating" value="1" onclick="selectStar(1)"><label for="star1">★</label>
+            <input type="radio" id="star2" name="rating" value="2" onclick="selectStar(2)"><label for="star2">★</label>
+            <input type="radio" id="star3" name="rating" value="3" onclick="selectStar(3)"><label for="star3">★</label>
+            <input type="radio" id="star4" name="rating" value="4" onclick="selectStar(4)"><label for="star4">★</label>
+            <input type="radio" id="star5" name="rating" value="5" onclick="selectStar(5)"><label for="star5">★</label>
+        </div>
+        <button class="clear-button" onclick="clearStars()">Clear</button>
+        <p>Please select your feedback category below:</p>
+        <div class="categories">
+            <div class="category-box" onclick="selectCategory(this,'Compliment')">Compliment</div>
+            <div class="category-box" onclick="selectCategory(this,'Bug')">Bug</div>
+            <div class="category-box" onclick="selectCategory(this,'Suggestion')">Suggestion</div>
+            <div class="category-box" onclick="selectCategory(this,'Content')">Content</div>
+            <div class="category-box" onclick="selectCategory(this,'Other')">Other</div>
+        </div>
+        <br>
+        <button class="clear-button-category" onclick="clearCategory()">Clear</button>
+        <p>Please leave your feedback below:</p>
+        <textarea rows="4" cols="50" name="feedbackText"></textarea>
+        <br>
+        <div class="error-message" style="color: red; display: none;">Please fill in all fields.</div>
+        <br>
+        <button class="submit-button" type="button" onclick="submitFeedback()">Submit</button>
+        <input type="hidden" name="feedbackData" id="feedbackData">
+        </form>
+    </div>
+    <script>
+        let selectedStars = 0;
+let selectedCategory = null;
+
+// Function to handle star ratings
+function selectStar(star) {
+    selectedStars = star;
+    document.querySelectorAll('.rating label').forEach((s, index) => {
+        if (index < star) {
+            s.style.color = '#fffada';
+        } else {
+            s.style.color = '#000';
+        }
+    });
+
+    //console.log(`Selected Stars: ${selectedStars}`);
+    // Show the clear button for stars
+    document.querySelector('.clear-button').style.display = 'inline-block';
+}
+
+// Function to clear star ratings
+function clearStars() {
+    selectedStars = 0;
+    document.querySelectorAll('.rating label').forEach(s => {
+        s.checked = false;
+        s.style.color = '#000';
+    });
+
+    // Hide the clear button for stars
+    document.querySelector('.clear-button').style.display = 'none';
+}
+
+// Function to select a feedback category
+function selectCategory(category, categoryName) {
+
+    selectedCategory = categoryName;
+    document.querySelectorAll('.category-box').forEach(c => {
+        if (c === category) {
+            c.classList.add('clicked');
+        } else {
+            c.classList.remove('clicked');
+        }
+    });
+
+    //console.log(`Selected Category: ${selectedCategory}`);
+    // Show the clear button for categories
+    document.querySelector('.clear-button-category').style.display = 'inline-block';
+}
+
+// Function to clear the selected feedback category
+function clearCategory() {
+    selectedCategory = null;
+    document.querySelectorAll('.category-box').forEach(c => {
+        c.classList.remove('clicked');
+    });
+
+    // Hide the clear button for categories
+    document.querySelector('.clear-button-category').style.display = 'none';
+}
+
+function submitFeedback() {
+    // Retrieve the selected stars and category
+    const stars = selectedStars;
+    const category = selectedCategory;
+
+    // Retrieve the feedback text from the textarea
+    const feedbackText = document.querySelector('textarea').value;
+
+    // Check if any value is empty
+    if (stars === 0 || !category || !feedbackText) {
+        // Display the error message
+        document.querySelector('.error-message').style.display = 'block';
+        return; // Exit the function if there is an error
+    }
+
+    // Create an object to hold the feedback data
+    const feedbackData = {
+        stars: stars,
+        category: category,
+        feedbackText: feedbackText
+    };
+
+    // Serialize the feedbackData object to JSON
+    const feedbackDataJSON = JSON.stringify(feedbackData);
+
+    // Set the JSON data in the hidden input field
+    document.getElementById('feedbackData').value = feedbackDataJSON;
+
+    // Submit the form
+    document.getElementById('feedback-form').submit();
+
+}
+
+    </script>
+</body>
+</html>
